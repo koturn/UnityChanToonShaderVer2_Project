@@ -89,6 +89,10 @@
             //Emissive
             uniform sampler2D _Emissive_Tex; uniform float4 _Emissive_Tex_ST;
             uniform float4 _Emissive_Color;
+
+            uniform sampler2D _HRMaskTex; uniform float4 _HRMaskTex_ST;
+            uniform float _HRSpeed;
+
             //v.2.0.7
             uniform fixed _Is_ViewCoord_Scroll;
             uniform float _Rotate_EmissiveUV;
@@ -137,6 +141,28 @@
             fixed3 DecodeLightProbe( fixed3 N ){
             return ShadeSH9(float4(N,1));
             }
+
+#ifdef _HUEROTATION_ON
+            inline float3 rgb2hsv(float3 rgb)
+            {
+                static const float4 k = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+                static const float e = 1.0e-10;
+
+                const float4 p = rgb.g < rgb.b ? float4(rgb.bg, k.wz) : float4(rgb.gb, k.xy);
+                const float4 q = rgb.r < p.x ? float4(p.xyw, rgb.r) : float4(rgb.r, p.yzx);
+                const float d = q.x - min(q.w, q.y);
+                return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+            }
+
+            inline float3 hsv2rgb(float3 hsv)
+            {
+                static const float4 k = float4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+
+                const float3 p = abs(frac(hsv.xxx + k.xyz) * 6.0 - k.www);
+                return hsv.z * lerp(k.xxx, saturate(p - k.xxx), hsv.y);
+            }
+#endif  // _HUEROTATION_ON
+
             
             uniform float _GI_Intensity;
 //v.2.0.4
@@ -224,6 +250,15 @@
                 float3 normalLocal = _NormalMap_var.rgb;
                 float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex));
+
+#ifdef _HUEROTATION_ON
+                // float hueOffset = _Time.y * _HRSpeed * rgb2y(tex2D(_HRMaskTex, TRANSFORM_TEX(Set_UV0, _HRMaskTex)).rgb);
+                float hueOffset = _Time.y * _HRSpeed * tex2D(_HRMaskTex, TRANSFORM_TEX(Set_UV0, _HRMaskTex)).r;
+                float3 hsv = rgb2hsv(_MainTex_var.rgb);
+                hsv.x += hueOffset;
+                _MainTex_var.rgb = hsv2rgb(hsv);
+#endif  // _HUEROTATION_ON
+
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
 //
@@ -381,6 +416,11 @@
 //v.2.0.7
 #ifdef _EMISSIVE_SIMPLE
                 float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex));
+#ifdef _HUEROTATION_ON
+                float3 hsv2 = rgb2hsv(_Emissive_Tex_var.rgb);
+                hsv2.x += hueOffset;
+                _Emissive_Tex_var.rgb = hsv2rgb(hsv2);
+#endif  // _HUEROTATION_ON
                 float emissiveMask = _Emissive_Tex_var.a;
                 emissive = _Emissive_Tex_var.rgb * _Emissive_Color.rgb * emissiveMask;
 #elif _EMISSIVE_ANIMATION
@@ -406,6 +446,11 @@
                 float rotateVelocity = _Rotate_EmissiveUV*3.141592654;
                 float2 _rotate_EmissiveUV_var = RotateUV(scrolledUV, rotateVelocity, float2(0.5, 0.5), _Is_PingPong_Base_var);
                 float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex));
+#ifdef _HUEROTATION_ON
+                float3 hsv2 = rgb2hsv(_Emissive_Tex_var.rgb);
+                hsv2.x += hueOffset;
+                _Emissive_Tex_var.rgb = hsv2rgb(hsv2);
+#endif  // _HUEROTATION_ON
                 float emissiveMask = _Emissive_Tex_var.a;
                 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(_rotate_EmissiveUV_var, _Emissive_Tex));
                 float _colorShift_Speed_var = 1.0 - cos(_time_var.g*_ColorShift_Speed);

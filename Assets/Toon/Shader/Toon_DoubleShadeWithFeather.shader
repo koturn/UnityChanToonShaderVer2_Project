@@ -120,6 +120,8 @@ Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather" {
         [HDR]_ViewShift ("ViewSift", Color) = (0,0,0,1)
         [Toggle(_)] _Is_ViewCoord_Scroll ("Is_ViewCoord_Scroll", Float ) = 0
         //
+        _HRMaskTex ("HRMaskTex", 2D) = "black" {}
+        _HRSpeed ("HRSpeed", Float) = 0.1
 //Outline
         [KeywordEnum(NML,POS)] _OUTLINE("OUTLINE MODE", Float) = 0
         _Outline_Width ("Outline_Width", Float ) = 0
@@ -203,6 +205,7 @@ Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather" {
             //v.2.0.7
             #pragma multi_compile _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
             //
+            #define _HUEROTATION_ON
             #include "UCTS_DoubleShadeWithFeather.cginc"
 
             ENDCG
@@ -233,6 +236,7 @@ Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather" {
             //v.2.0.4
             #pragma multi_compile _IS_CLIPPING_OFF
             #pragma multi_compile _IS_PASS_FWDDELTA
+            #define _HUEROTATION_ON
             #include "UCTS_DoubleShadeWithFeather.cginc"
 
             ENDCG

@@ -130,6 +130,10 @@ namespace UnityChan
         MaterialProperty colorShift = null;
         MaterialProperty colorShift_Speed = null;
         MaterialProperty viewShift = null;
+
+        MaterialProperty hrMaskTex = null;
+        MaterialProperty hrSpeed = null;
+
         MaterialProperty outline_Width = null;
         MaterialProperty outline_Color = null;
         MaterialProperty outline_Sampler = null;
@@ -219,6 +223,10 @@ namespace UnityChan
             colorShift = FindProperty("_ColorShift", props);
             colorShift_Speed = FindProperty("_ColorShift_Speed", props);
             viewShift = FindProperty("_ViewShift", props);
+
+            hrMaskTex = FindProperty("_HRMaskTex", props, false);
+            hrSpeed = FindProperty("_HRSpeed", props, false);
+
             outline_Width = FindProperty("_Outline_Width", props, false);
             outline_Color = FindProperty("_Outline_Color", props, false);
             outline_Sampler = FindProperty("_Outline_Sampler", props, false);
@@ -318,6 +326,7 @@ namespace UnityChan
             public static GUIContent matCapMaskText = new GUIContent("MatCap Mask","MatCap Mask : Texture(linear)");
             public static GUIContent angelRingText = new GUIContent("AngelRing","AngelRing : Texture(sRGB) × Color(RGB) Default:Black");
             public static GUIContent emissiveTexText = new GUIContent("Emissive","Emissive : Texture(sRGB)× EmissiveMask(alpha) × Color(HDR) Default:Black");
+            public static GUIContent hrMaskTexText = new GUIContent("HR Mask","Hue Rotation : Hue Rotation Mask");
             public static GUIContent shadingGradeMapText = new GUIContent("Shading Grade Map","影のかかり方マップ。UV座標で影のかかりやすい場所を指定する。Shading Grade Map : Texture(linear)");
             public static GUIContent firstPositionMapText = new GUIContent("1st Shade Position Map","1影色領域に落ちる固定影の位置を、UV座標で指定する。1st Position Map : Texture(linear)");
             public static GUIContent secondPositionMapText = new GUIContent("2nd Shade Position Map","2影色領域に落ちる固定影の位置を、UV座標で指定する。2nd Position Map : Texture(linear)");
@@ -498,6 +507,15 @@ namespace UnityChan
                 //EditorGUILayout.Space();
                 GUI_Emissive(material);
                 EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.Space();
+
+            if (hrMaskTex != null) {
+                m_MaterialEditor.TexturePropertySingleLine(Styles.hrMaskTexText, hrMaskTex);
+            }
+            if (hrSpeed != null) {
+                m_MaterialEditor.FloatProperty(hrSpeed, "Hue Rotation Speed");
             }
 
             EditorGUILayout.Space();

@@ -121,6 +121,8 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap" {
         [Toggle(_)] _Is_ViewShift ("Activate ViewShift", Float ) = 0
         [HDR]_ViewShift ("ViewSift", Color) = (0,0,0,1)
         [Toggle(_)] _Is_ViewCoord_Scroll ("Is_ViewCoord_Scroll", Float ) = 0
+        _HRMaskTex ("HRMaskTex", 2D) = "black" {}
+        _HRSpeed ("HRSpeed", Float) = 0.1
         //
 //Outline
         [KeywordEnum(NML,POS)] _OUTLINE("OUTLINE MODE", Float) = 0
@@ -205,6 +207,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap" {
             //v.2.0.7
             #pragma multi_compile _EMISSIVE_SIMPLE _EMISSIVE_ANIMATION
             //
+            #define _HUEROTATION_ON
             #include "UCTS_ShadingGradeMap.cginc"
 
             ENDCG
@@ -235,6 +238,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap" {
             #pragma multi_compile _IS_TRANSCLIPPING_OFF
             #pragma multi_compile _IS_ANGELRING_OFF
             #pragma multi_compile _IS_PASS_FWDDELTA
+            #define _HUEROTATION_ON
             #include "UCTS_ShadingGradeMap.cginc"
 
             ENDCG
